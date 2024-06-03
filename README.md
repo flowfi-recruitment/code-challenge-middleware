@@ -1,6 +1,6 @@
 # code-challenge-middleware
 
-![Recruitment - Code Challenge - Middleware](https://github.com/flowfi-recruitment/code-challenge-middleware/assets/170458811/0f569954-aec7-4f43-94cd-6aecf440cf59)
+![Recruitment - Code Challenge - Middleware](https://github.com/flowfi-recruitment/code-challenge-middleware/assets/1407046/fa324d46-1552-48d5-80f0-e22f57395eee)
 
 ### Transactions API
 
@@ -20,5 +20,4 @@ This codebase is a fairly representative example of what a middleware micro-serv
 
 * Please refer to the assessment worksheet you were given for specific instructions.
 * Generally, please familiarize yourself with the codebase and submit a PR with feedback and corrections as though this was a real collaboration.
-
 
