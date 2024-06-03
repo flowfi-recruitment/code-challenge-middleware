@@ -1,0 +1,4 @@
+Environment=${ENVIRONMENT}
+Subnets=${SUBNET_IDS} \
+SecurityGroups=${SECURITY_GROUP} \
+Region=${REGION}

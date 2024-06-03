@@ -1,0 +1,26 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@4.1.3
+  sam: circleci/aws-sam-serverless@6.0.0
+jobs:
+  deploy:
+    docker:
+      - image: cimg/node:16.0.0
+    parameters:
+      environment:
+        type: string
+        default: development
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run build
+workflows:
+  version: 2
+  build:
+    jobs:
+      - deploy:
+          environment: 'production'
+          filters:
+            branches:
+              only: 'main'

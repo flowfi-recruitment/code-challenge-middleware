@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: "FlowFi - Middleware Code Challenge"
+Parameters:
+  Region:
+    Type: "String"
+    Description: "AWS Region"
+    Default: "us-west-2"
+  Environment:
+    Description: "Environment parameter to enable deployment of two stacks within root account"
+    Type: "String"
+    Default: "production"
+    AllowedValues:
+      - development
+      - production
+Resources:
+  TransactionsApiHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "transactions-api-${Environment}"
+      CodeUri: /home/circleci/project/transactions/build
+      Handler: mod/api/index.handler
+      Runtime: nodejs16.x
+      MemorySize: 1048
+      Timeout: 900
+
+      Environment:
+        Variables:
+          connection: "database-connection-string"
+      Role: "arn:aws:iam::123456789:role/api-service"
+  TransactionsApiSchema:
+    Type: "AWS::AppSync::GraphQLSchema"
+    Properties:
+      ApiId: !GetAtt TransactionsApi.ApiId
+      DefinitionS3Location: ./mod/api/schema.gql
+  TransactionsApiSource:
+    Type: "AWS::AppSync::DataSource"
+    Properties:
+      ApiId: !GetAtt TransactionsApi.ApiId
+      Name: "TransactionsApiSource"
+      Type: "AWS_LAMBDA"
+      ServiceRoleArn: !GetAtt TransactionsApiAppSyncRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt TransactionsApiHandler.Arn
+  getTransactionsResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt TransactionsApi.ApiId
+      TypeName: "Query"
+      FieldName: "getTransactions"
+      DataSourceName: !GetAtt TransactionsApiSource.Name
+  TransactionsApiAppSyncRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "transactions-api-appsync-role-${Environment}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "appsync.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+  TransactionsApiAccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: !Sub "transactions-api-lambda-access-policy-${Environment}"
+      Roles:
+        - !Ref TransactionsApiAppSyncRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "lambda:invokeFunction"
+            Resource:
+              - !GetAtt TransactionsApiHandler.Arn
+  TransactionsApi:
+    Type: "AWS::AppSync::GraphQLApi"
+    Properties:
+      Name: !Sub "transactions-api-${Environment}"
+      AuthenticationType: "API_KEY"

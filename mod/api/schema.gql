@@ -1,0 +1,49 @@
+schema {
+  query: Query
+}
+
+type Query {
+  getTransactions(query: TransactionsQuery): [Transaction]
+  getMerchantTransactions(query: TransactionsQuery): [Merchant]
+}
+
+enum CATEGORIES {
+  MISCELLANEOUS,
+  FOOD,
+  TRAVEL,
+  ENTERTAINMENT,
+  OFFICE,
+  WAGES,
+  REVENUE
+}
+
+type TransactionsQuery {
+  range: DateRange
+  merchant: String
+  amount: Int
+}
+
+type DateRange {
+  start: String
+  end: String
+}
+
+type Transaction {
+  id: ID
+  memo: String
+  date: String
+  amount: Int
+  merchant: Merchant
+  category: Category
+}
+
+type Merchant {
+  id: ID
+  name: String
+  logo: String
+}
+
+type Category {
+  id: ID
+  name: CATEGORIES
+}
