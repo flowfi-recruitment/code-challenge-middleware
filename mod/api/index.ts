@@ -1,14 +1,6 @@
-import {getMerchants} from "./resolvers/merchants";
-import {getTransactions} from "./resolvers/transactions";
-import {getCategories} from "./resolvers/categories";
-import {AppSyncResolverEvent} from "aws-lambda";
-
+import { AppSyncResolverEvent } from "aws-lambda";
+import { getEntities } from "./resolvers/entities";
 export const api = async (event: AppSyncResolverEvent<any>) => {
-  if(event.info.fieldName === 'getTransactions') {
-    return await getTransactions(event.arguments);
-  } else if (event.info.fieldName === 'getMerchants') {
-    return await getMerchants(event.arguments);
-  } else if (event.info.fieldName === 'getCategories') {
-    return getCategories(event.arguments)
-  }
-}
+  const { fieldName, arguments: args } = event.info;
+  return await getEntities(fieldName, args);
+};
