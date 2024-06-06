@@ -4,7 +4,8 @@ schema {
 
 type Query {
   getTransactions(query: TransactionsQuery): [Transaction]
-  getMerchantTransactions(query: TransactionsQuery): [Merchant]
+  getCategory(id: number): Category
+  getMerchant(id: number): Merchant
 }
 
 enum CATEGORIES {
