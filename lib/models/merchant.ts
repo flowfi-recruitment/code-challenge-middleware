@@ -1,38 +1,49 @@
-import Transaction from "lib/models/transaction";
-import {Merchant as IMerchant} from "../types/merchants";
-import {Query} from "../types/api";
-import postgres from "postgres";
+import { Merchant as IMerchant } from "../types/merchants";
+import { Query } from "../types/api";
+import { Transaction as ITransaction } from "lib/types/transactions";
+import Transaction from "./transaction";
+import db from "lib/db";
 
 interface MerchantTransactions extends IMerchant {
   total: number;
-  transactions: Transaction[]
+  transactions: ITransaction[];
 }
 
 export default class Merchant implements IMerchant {
-  id: string;
   name: string;
+  id: string;
   logo: string;
-
-  async query(query:Query): Promise<IMerchant[]> {
-    const db = postgres(process.env.connection);
-    return db`select * from merchants where name = ${query.merchant.name}`;
-  }
-
-  async getMerchantTransactions(query: Query): Promise<MerchantTransactions> {
-    const merchant = (await this.query(query))[0];
-    const transactions = new Transaction();
-    const data = await transactions.query(query);
-    let total = 0;
-
-    for(const transaction in data) {
-      total += transaction.amount;
+  constructor() {}
+  static async findById(id: number): Promise<IMerchant | null> {
+    const result = await db<
+      IMerchant[]
+    >`select * from merchants where id = ${id}`;
+    if (!result || result.length === 0) {
+      return null;
     }
-
-    return {...merchant, total, transactions: data};
+    const row = result[0];
+    return row;
   }
 
-  async create(name:string): Promise<Merchant> {
-    const db = postgres(process.env.connection);
+  static async getMerchantTransactions(
+    query: Query
+  ): Promise<MerchantTransactions> {
+    const merchant = await Merchant.findById(+query.merchant.id);
+    if (!merchant) throw new Error("there is no merchant with this id");
+    const data = await Transaction.getMerchantTransaction(query);
+    const total = data.reduce((prev, curr) => curr.amount + prev, 0);
+    return {
+      ...merchant,
+      total,
+      transactions: data,
+    };
+  }
 
+  static async create(merchant: IMerchant): Promise<IMerchant> {
+    await db`INSERT INTO merchant (id, name, logo)
+    VALUES ('${merchant.name}', '${merchant.logo}', '${merchant.id}');
+    `;
+
+    return merchant;
   }
 }

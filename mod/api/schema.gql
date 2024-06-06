@@ -4,22 +4,40 @@ schema {
 
 type Query {
   getTransactions(query: TransactionsQuery): [Transaction]
-  getMerchantTransactions(query: TransactionsQuery): [Merchant]
+  getCategory(id: number): Category
+  getMerchant(id: number): Merchant
+  getMerchantTransactions(query: TransactionsQuery): [MerchantTransactions]
+}
+
+type Merchant {
+  id: ID!
+  name: String!
+  logo: String!
+}
+
+input MerchantInput {
+  id: ID!
+  name: String!
+  logo: String!
+}
+
+type Mutation {
+  createMerchant(merchant: MerchantInput!): Merchant!
 }
 
 enum CATEGORIES {
-  MISCELLANEOUS,
-  FOOD,
-  TRAVEL,
-  ENTERTAINMENT,
-  OFFICE,
-  WAGES,
+  MISCELLANEOUS
+  FOOD
+  TRAVEL
+  ENTERTAINMENT
+  OFFICE
+  WAGES
   REVENUE
 }
 
 type TransactionsQuery {
   range: DateRange
-  merchant: String
+  merchantId: Int
   amount: Int
 }
 
@@ -46,4 +64,9 @@ type Merchant {
 type Category {
   id: ID
   name: CATEGORIES
+}
+
+type MerchantTransactions {
+  total: Int
+  transactions: [Transaction]
 }

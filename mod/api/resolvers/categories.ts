@@ -1,7 +1,5 @@
-import {Query} from "lib/types/api";
-import Transaction from "lib/models/transaction";
+import Category from "lib/models/category";
 
-export const getCategories = async(query: Query) => {
-  const model = new Transaction();
-  return await model.query(query);
-}
+export const getCategory = async (id: number) => {
+  return Category.findById(id);
+};
