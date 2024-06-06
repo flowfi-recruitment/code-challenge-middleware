@@ -1,5 +1,5 @@
-import {Merchant} from "./merchants";
-import {Categories} from "./categories";
+import { Merchant } from "./merchants";
+import { CATEGORIES } from "./categories";
 
 export interface Transaction {
   id: string;
@@ -7,5 +7,5 @@ export interface Transaction {
   date: string;
   amount: number;
   merchant: Merchant;
-  category: Categories
+  category: CATEGORIES;
 }
